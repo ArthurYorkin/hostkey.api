@@ -1,19 +1,18 @@
 <?php
 
-namespace common\services\servers\base;
+namespace common\services\gpuvirtual\base;
 
 use yii;
 use common\services\curl\Curl;
 use common\services\curl\CurrencyCurs;
 
 /**
- * Возвращает список серверов из стокмгр
+ * Возвращает список виртуальных GPU шаблонов из стокмгр
  * с основными параметрами и ценами
  * @author ArthurYorkin
  */
-class ServersMain implements ServersInterface
+class GpuvirtualMain implements GpuvirtualInterface
 {
-    private $response;
     private $model;
     private $token;
     /**
@@ -35,14 +34,16 @@ class ServersMain implements ServersInterface
      * если в кеше данные не найдены, обращается в стокмгр
      * @return array|mixed
      */
-    public function GetListServers()
+    public function GetListGpuVirtual()
     {
+        if (strtolower($this->model->location)=='all') {
+            $this->model->location="";
+        }
         $cacheID = basename(__FILE__) . $this->model->servertype . $this->model->location . $this->model->groups;
-        $customData = Yii::$app->cache->get($cacheID);
 //        Yii::$app->cache->delete($cacheID);
+        $customData = Yii::$app->cache->get($cacheID);
         if (!$customData) {
-//            $url = "https://stockmgr.hostkey.ru/auction/getdata?AuthUserToken=7096e8ae1455a5a2514f58305249efac&currency=EUR";
-            $url = Yii::$app->params['externalurls']['urlStockmgr'] . "/auction/getdata?AuthUserToken=" . $this->token . "&currency={$this->model->currency}&location={$this->model->location}&group={$this->model->groups}";
+            $url = Yii::$app->params['externalurls']['urlStockmgr'] . "/auction/getdatagpuvirtual?AuthUserToken=" . $this->token . "&currency={$this->model->currency}&location={$this->model->location}&group={$this->model->groups}";
             $customData = Curl::getData($url, "", "GET", "");
             if ($customData) {
                 Yii::$app->cache->set($cacheID, $customData, $this->cachetime30min);
@@ -55,6 +56,8 @@ class ServersMain implements ServersInterface
     }
 
 
+
+
     /**
      * Пересчет из евро в нац.валюту и добавление элементов с ценами в нац.валюте в массив стоковых серверов
      * @param $arrdata
@@ -62,12 +65,9 @@ class ServersMain implements ServersInterface
      */
     private function recalculatestock($arrdata)
     {
-        $resdata=[];
+        $resdata = [];
         $currencylist = CurrencyCurs::getCurrency($this->model->currencycon);
         foreach ($arrdata as $k => $v) {
-            if ($this->receller() && isset($v->auction)) {
-                unset($v->auction);
-            }
             foreach ($v as $k1 => $v1) {
                 $resdata[$k][$k1] = $v1;
             }
@@ -75,22 +75,7 @@ class ServersMain implements ServersInterface
                 $resdata[$k]["priceur"] = $v->price;
                 $resdata[$k]["price"] = round($v->price / $currencylist['eur']['rate'] * $currencylist[$this->model->currency]['rate'] * $this->model->pricerate, 2);
             }
-            if (isset($v->current_price) && !$this->receller()) {
-                $resdata[$k]["current_priceur"] = $v->current_price;
-                $resdata[$k]["current_price"] = round($v->current_price / $currencylist['eur']['rate'] * $currencylist[$this->model->currency]['rate'] * $this->model->pricerate, 2);
-            }
         }
         return $resdata;
-    }
-
-    /**
-     * TODO идентификация реселлера
-     * для блокировки выдачи сторонним реселлерам цены аукциона
-     * реселлер идентифицируется по токену
-     * токены хранятся в биллинге
-     * @return bool
-     */
-    private function receller() {
-        return false;
     }
 }

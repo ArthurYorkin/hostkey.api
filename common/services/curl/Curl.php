@@ -10,7 +10,6 @@ namespace common\services\curl;
 class Curl
 {
     public static function getData($url, $data, $RequestType, $auth) {
-
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $RequestType);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

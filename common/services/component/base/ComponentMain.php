@@ -29,7 +29,7 @@ class ComponentMain implements ComponentInterface
     {
         $this->model = $model;
         $this->model->currencycon = strtolower($this->model->currencycon);
-        $this->model->currency = strtolower($this->model->currencycon);
+        $this->model->currency = strtolower($this->model->currency);
     }
 
     /**
@@ -40,6 +40,7 @@ class ComponentMain implements ComponentInterface
     public function GetComponents()
     {
         $cacheID = basename(__FILE__) . $this->model->servertype . $this->model->location . $this->model->groups;
+//        Yii::$app->cache->delete($cacheID);
         $component = Yii::$app->cache->get($cacheID);
         if (!$component) {
             $url = Yii::$app->params['externalurls']['urlUg'] . $this->ugrequest ."groups={$this->model->groups}&location={$this->model->location}&servertype={$this->model->servertype}";

@@ -42,7 +42,15 @@ class GpuvirtualMain implements GpuvirtualInterface
         $cacheID = basename(__FILE__) . $this->model->servertype . $this->model->location . $this->model->groups;
 //        Yii::$app->cache->delete($cacheID);
         $customData = Yii::$app->cache->get($cacheID);
-        if (!$customData) {
+
+        $dubl=false;
+        if (!isset($customData)) {
+            $dubl=true;
+        } elseif (!is_array($customData)) {
+            $dubl=true;
+        }
+
+        if ($dubl) {
             $url = Yii::$app->params['externalurls']['urlStockmgr'] . "/auction/getdatagpuvirtual?AuthUserToken=" . $this->token . "&currency={$this->model->currency}&location={$this->model->location}&group={$this->model->groups}";
             $customData = Curl::getData($url, "", "GET", "");
             if ($customData) {

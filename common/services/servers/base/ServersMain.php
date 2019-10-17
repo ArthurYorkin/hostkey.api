@@ -40,7 +40,15 @@ class ServersMain implements ServersInterface
         $cacheID = basename(__FILE__) . $this->model->servertype . $this->model->location . $this->model->groups;
         $customData = Yii::$app->cache->get($cacheID);
 //        Yii::$app->cache->delete($cacheID);
-        if (!$customData) {
+
+        $dubl=false;
+        if (!isset($customData)) {
+            $dubl=true;
+        } elseif (!is_array($customData)) {
+            $dubl=true;
+        }
+
+        if ($dubl) {
 //            $url = "https://stockmgr.hostkey.ru/auction/getdata?AuthUserToken=7096e8ae1455a5a2514f58305249efac&currency=EUR";
             $url = Yii::$app->params['externalurls']['urlStockmgr'] . "/auction/getdata?AuthUserToken=" . $this->token . "&currency={$this->model->currency}&location={$this->model->location}&group={$this->model->groups}";
             $customData = Curl::getData($url, "", "GET", "");

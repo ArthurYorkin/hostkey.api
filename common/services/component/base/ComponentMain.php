@@ -42,7 +42,15 @@ class ComponentMain implements ComponentInterface
         $cacheID = basename(__FILE__) . $this->model->servertype . $this->model->location . $this->model->groups;
 //        Yii::$app->cache->delete($cacheID);
         $component = Yii::$app->cache->get($cacheID);
-        if (!$component) {
+
+        $dubl=false;
+        if (!isset($component)) {
+            $dubl=true;
+        } elseif (!is_array($component)) {
+            $dubl=true;
+        }
+
+        if ($dubl) {
             $url = Yii::$app->params['externalurls']['urlUg'] . $this->ugrequest ."groups={$this->model->groups}&location={$this->model->location}&servertype={$this->model->servertype}";
             $component = Curl::getData($url, "", "GET", "");
             if ($component) {

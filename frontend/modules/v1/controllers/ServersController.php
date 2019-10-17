@@ -4,14 +4,29 @@ namespace app\modules\v1\controllers;
 
 use yii;
 use yii\rest\Controller;
+use yii\filters\Cors;
+use yii\helpers\ArrayHelper;
 use common\services\servers\models\ServersMainForm;
 
 class ServersController extends Controller
 {
-    
+
     public function behaviors()
     {
-        return [
+        return ArrayHelper::merge([
+            [
+                'class' => Cors::className(),
+                'cors' => [
+                    'Access-Control-Allow-Credentials' => true,
+                    'Origin' => Yii::$app->params['alloweddomain'],
+                    'Access-Control-Request-Method' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
+                ],
+                'actions' => [
+                    'login' => [
+                        'Access-Control-Allow-Credentials' => true,
+                    ]
+                ]
+            ],
             'compositeAuth' => [
                 'class' => \yii\filters\auth\CompositeAuth::className(),
                 'authMethods' => [
@@ -20,7 +35,8 @@ class ServersController extends Controller
                     \yii\filters\auth\QueryParamAuth::className(),
                 ],
             ],
-        ];
+        ],
+            parent::behaviors());
     }
     
     /**

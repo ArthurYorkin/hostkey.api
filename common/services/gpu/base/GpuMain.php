@@ -1,6 +1,6 @@
 <?php
 
-namespace common\services\gpuvirtual\base;
+namespace common\services\gpu\base;
 
 use yii;
 use common\services\curl\Curl;
@@ -11,7 +11,7 @@ use common\services\curl\CurrencyCurs;
  * с основными параметрами и ценами
  * @author ArthurYorkin
  */
-class GpuvirtualMain implements GpuvirtualInterface
+class GpuMain implements GpuInterface
 {
     private $model;
     private $token;
@@ -34,7 +34,7 @@ class GpuvirtualMain implements GpuvirtualInterface
      * если в кеше данные не найдены, обращается в стокмгр
      * @return array|mixed
      */
-    public function GetListGpuVirtual()
+    public function GetListGpu()
     {
         if (strtolower($this->model->location)=='all') {
             $this->model->location="";
@@ -51,7 +51,7 @@ class GpuvirtualMain implements GpuvirtualInterface
         }
 
         if ($dubl) {
-            $url = Yii::$app->params['externalurls']['urlStockmgr'] . "/auction/getdatagpuvirtual?AuthUserToken=" . $this->token . "&currency={$this->model->currency}&location={$this->model->location}&group={$this->model->groups}";
+            $url = Yii::$app->params['externalurls']['urlStockmgr'] . "/auction/getdatagpu?AuthUserToken=" . $this->token . "&currency={$this->model->currency}&location={$this->model->location}&group={$this->model->groups}";
             $customData = Curl::getData($url, "", "GET", "");
             if ($customData) {
                 Yii::$app->cache->set($cacheID, $customData, $this->cachetime30min);

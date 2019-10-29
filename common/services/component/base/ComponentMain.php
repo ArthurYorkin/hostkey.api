@@ -40,7 +40,7 @@ class ComponentMain implements ComponentInterface
     public function GetComponents()
     {
         $cacheID = basename(__FILE__) . $this->model->servertype . $this->model->location . $this->model->groups;
-//        Yii::$app->cache->delete($cacheID);
+        Yii::$app->cache->delete($cacheID);
         $component = Yii::$app->cache->get($cacheID);
 
         $dubl=false;
@@ -51,7 +51,9 @@ class ComponentMain implements ComponentInterface
         }
 
         if ($dubl) {
-            $url = Yii::$app->params['externalurls']['urlUg'] . $this->ugrequest ."groups={$this->model->groups}&location={$this->model->location}&servertype={$this->model->servertype}";
+            $url = Yii::$app->params['externalurls']['urlUg'] . $this->ugrequest;
+            $url .= "groups={$this->model->groups}&location={$this->model->location}&servertype={$this->model->servertype}";
+            $url .= "&access-token=".Yii::$app->params['access-token'];
             $component = Curl::getData($url, "", "GET", "");
             if ($component) {
                 Yii::$app->cache->set($cacheID, $component, $this->cachetime30min);
